@@ -105,6 +105,10 @@ provider "helm" {
 # ------------------------------------------------------------------------------
 # 3. Instalação do Argo CD + Bootstrap da Application via Helm
 # ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# 3. Argo CD + Bootstrap via Chart Oficial (Sem conflito de CRD)
+# ------------------------------------------------------------------------------
+
 resource "helm_release" "argocd" {
   name             = "argocd"
   repository       = "https://argoproj.github.io/argo-helm"
@@ -115,17 +119,14 @@ resource "helm_release" "argocd" {
 
   values = [
     yamlencode({
-      extraObjects = [
-        # Bootstrap da Application no Argo CD
-        {
-          apiVersion = "argoproj.io/v1alpha1"
-          kind       = "Application"
-          metadata = {
+      # 1. Habilita o sub-chart de gerenciamento de aplicações
+      argocd-apps = {
+        enabled = true
+        applications = [
+          {
             name      = "online-boutique-microservices"
             namespace = "argocd"
-          }
-          spec = {
-            project = "default"
+            project   = "default"
             source = {
               repoURL        = var.git_repo_url
               targetRevision = var.git_repo_revision
@@ -145,8 +146,8 @@ resource "helm_release" "argocd" {
               ]
             }
           }
-        }
-      ]
+        ]
+      }
     })
   ]
 
