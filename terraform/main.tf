@@ -105,8 +105,6 @@ provider "helm" {
 # ------------------------------------------------------------------------------
 # 3. Instalação do Argo CD + Bootstrap da Application via Helm
 # ------------------------------------------------------------------------------
-
-# 1. Instalação limpa do Argo CD via Helm
 resource "helm_release" "argocd" {
   name             = "argocd"
   repository       = "https://argoproj.github.io/argo-helm"
@@ -115,45 +113,44 @@ resource "helm_release" "argocd" {
   create_namespace = true
   version          = "6.7.1"
 
-  depends_on = [module.eks]
-}
-
-# 2. Manifesto do Argo CD Application criado separadamente
-resource "kubernetes_manifest" "online_boutique" {
-  manifest = {
-    apiVersion = "argoproj.io/v1alpha1"
-    kind       = "Application"
-    metadata = {
-      name      = "online-boutique-microservices"
-      namespace = "argocd"
-    }
-    spec = {
-      project = "default"
-      source = {
-        repoURL        = var.git_repo_url
-        targetRevision = var.git_repo_revision
-        path           = var.git_repo_path
-      }
-      destination = {
-        server    = "https://kubernetes.default.svc"
-        namespace = "default"
-      }
-      syncPolicy = {
-        automated = {
-          prune    = true
-          selfHeal = true
+  values = [
+    yamlencode({
+      extraObjects = [
+        # Bootstrap da Application no Argo CD
+        {
+          apiVersion = "argoproj.io/v1alpha1"
+          kind       = "Application"
+          metadata = {
+            name      = "online-boutique-microservices"
+            namespace = "argocd"
+          }
+          spec = {
+            project = "default"
+            source = {
+              repoURL        = var.git_repo_url
+              targetRevision = var.git_repo_revision
+              path           = var.git_repo_path
+            }
+            destination = {
+              server    = "https://kubernetes.default.svc"
+              namespace = "default"
+            }
+            syncPolicy = {
+              automated = {
+                prune    = true
+                selfHeal = true
+              }
+              syncOptions = [
+                "CreateNamespace=true"
+              ]
+            }
+          }
         }
-        syncOptions = [
-          "CreateNamespace=true"
-        ]
-      }
-    }
-  }
-
-  # Garante que o Argo CD e seus CRDs já estejam prontos no cluster
-  depends_on = [
-    helm_release.argocd
+      ]
+    })
   ]
+
+  depends_on = [module.eks]
 }
 
 
