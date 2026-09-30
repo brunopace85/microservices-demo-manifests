@@ -105,7 +105,6 @@ provider "helm" {
 # ------------------------------------------------------------------------------
 # 3. Instalação do Argo CD + Bootstrap da Application via Helm
 # ------------------------------------------------------------------------------
-
 resource "helm_release" "argocd" {
   name             = "argocd"
   repository       = "https://argoproj.github.io/argo-helm"
@@ -116,28 +115,34 @@ resource "helm_release" "argocd" {
 
   values = [
     yamlencode({
-      applications = [
+      extraObjects = [
         {
-          name      = "online-boutique-microservices"
-          namespace = "argocd"
-          project   = "default"
-          source = {
-            repoURL        = var.git_repo_url
-            targetRevision = var.git_repo_revision
-            path           = var.git_repo_path
+          apiVersion = "argoproj.io/v1alpha1"
+          kind       = "Application"
+          metadata = {
+            name      = "online-boutique-microservices"
+            namespace = "argocd"
           }
-          destination = {
-            server    = "https://kubernetes.default.svc"
-            namespace = "default"
-          }
-          syncPolicy = {
-            automated = {
-              prune    = true
-              selfHeal = true
+          spec = {
+            project = "default"
+            source = {
+              repoURL        = var.git_repo_url
+              targetRevision = var.git_repo_revision
+              path           = var.git_repo_path
             }
-            syncOptions = [
-              "CreateNamespace=true"
-            ]
+            destination = {
+              server    = "https://kubernetes.default.svc"
+              namespace = "default"
+            }
+            syncPolicy = {
+              automated = {
+                prune    = true
+                selfHeal = true
+              }
+              syncOptions = [
+                "CreateNamespace=true"
+              ]
+            }
           }
         }
       ]
