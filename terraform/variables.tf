@@ -1,39 +1,29 @@
 variable "aws_region" {
-  type    = string
-  default = "us-east-1"
+  type        = string
+  default     = "us-east-1"
+  description = "Região da AWS onde os recursos serão criados."
 }
 
 variable "cluster_name" {
-  type    = string
-  default = "eks-web-cluster"
+  type        = string
+  default     = "eks-microservices-demo"
+  description = "Nome do cluster EKS."
 }
 
-variable "github_repo_url" {
-  description = "URL HTTPS do repositório Git"
+variable "git_repo_url" {
   type        = string
   default     = "https://github.com/brunopace85/microservices-demo-manifests.git"
+  description = "URL do seu repositório GitHub contendo os manifests separadamente por serviço."
 }
 
-variable "github_repo_target_revision" {
-  description = "Branch ou Tag do repositório"
+variable "git_repo_path" {
   type        = string
-  default     = "main" # ou "main"
+  default     = "."
+  description = "Caminho (path) dentro do repositório onde os manifests estão salvos."
 }
 
-variable "github_repo_path" {
-  description = "Caminho da pasta dentro do repositório onde estão os arquivos YAML"
+variable "git_repo_revision" {
   type        = string
-  default     = "." # use "k8s" ou "manifests" se os YAMLs estiverem em uma subpasta
-}
-
-variable "app_label_selector" {
-  description = "Label 'app' que os Pods nos seus manifestos utilizam"
-  type        = string
-  default     = "frontend"
-}
-
-variable "app_target_port" {
-  description = "Porta em que a aplicação dentro do Pod escuta"
-  type        = number
-  default     = 8080
+  default     = "HEAD"
+  description = "Branch, tag ou commit a ser monitorado pelo Argo CD (ex: HEAD, main)."
 }
