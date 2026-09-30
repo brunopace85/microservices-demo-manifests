@@ -182,9 +182,3 @@ resource "kubernetes_service" "frontend_lb" {
 
   depends_on = [helm_release.argocd]
 }
-
-# Output para exibir a URL pública do Load Balancer no terminal após o apply
-output "frontend_url" {
-  description = "URL pública de acesso à Online Boutique"
-  value       = kubernetes_service.frontend_lb.status[0].load_balancer[0].ingress[0].hostname
-}

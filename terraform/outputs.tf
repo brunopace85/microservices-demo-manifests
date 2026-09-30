@@ -17,3 +17,9 @@ output "argocd_port_forward" {
   description = "Comando para expor o painel do Argo CD localmente."
   value       = "kubectl port-forward svc/argocd-server -n argocd 8080:443"
 }
+
+# Output para exibir a URL pública do Load Balancer no terminal após o apply
+output "frontend_url" {
+  description = "URL pública de acesso à Online Boutique"
+  value       = kubernetes_service.frontend_lb.status[0].load_balancer[0].ingress[0].hostname
+}
