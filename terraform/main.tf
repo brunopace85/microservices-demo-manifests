@@ -151,3 +151,40 @@ resource "helm_release" "argocd" {
 
   depends_on = [module.eks]
 }
+
+
+# ------------------------------------------------------------------------------
+# Exposição Pública do Frontend via AWS Load Balancer
+# ------------------------------------------------------------------------------
+
+resource "kubernetes_service" "frontend_lb" {
+  metadata {
+    name      = "frontend-external"
+    namespace = "default"
+    annotations = {
+      "service.beta.kubernetes.io/aws-load-balancer-type" = "nlb" # Cria um Network Load Balancer (mais rápido)
+    }
+  }
+
+  spec {
+    type = "LoadBalancer"
+
+    selector = {
+      app = "frontend"
+    }
+
+    port {
+      name        = "http"
+      port        = 80
+      target_port = 8080
+    }
+  }
+
+  depends_on = [helm_release.argocd]
+}
+
+# Output para exibir a URL pública do Load Balancer no terminal após o apply
+output "frontend_url" {
+  description = "URL pública de acesso à Online Boutique"
+  value       = kubernetes_service.frontend_lb.status[0].load_balancer[0].ingress[0].hostname
+}
