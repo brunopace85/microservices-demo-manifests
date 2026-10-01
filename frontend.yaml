@@ -31,7 +31,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
-          image: us-central1-docker.pkg.dev/online-boutique-ci/microservices-demo/frontend:v0.10.7
+          image: brunopace85/online-boutique-frontend:v0.1
           ports:
           - containerPort: 8080
           readinessProbe:
