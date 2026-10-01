@@ -117,40 +117,6 @@ resource "helm_release" "argocd" {
   create_namespace = true
   version          = "6.7.1"
 
-  values = [
-    yamlencode({
-      # 1. Habilita o sub-chart de gerenciamento de aplicações
-      argocd-apps = {
-        enabled = true
-        applications = [
-          {
-            name      = "online-boutique-microservices"
-            namespace = "argocd"
-            project   = "default"
-            source = {
-              repoURL        = var.git_repo_url
-              targetRevision = var.git_repo_revision
-              path           = var.git_repo_path
-            }
-            destination = {
-              server    = "https://kubernetes.default.svc"
-              namespace = "default"
-            }
-            syncPolicy = {
-              automated = {
-                prune    = true
-                selfHeal = true
-              }
-              syncOptions = [
-                "CreateNamespace=true"
-              ]
-            }
-          }
-        ]
-      }
-    })
-  ]
-
   depends_on = [module.eks]
 }
 
