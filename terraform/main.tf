@@ -160,31 +160,6 @@ spec:
 YAML
 }
 
-resource "kubectl_manifest" "argocd_application_homolog" {
-  yaml_body = <<YAML
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: app-homolog
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: '${var.git_repo_url}'
-    targetRevision: '${var.git_repo_revision}'
-    path: '${var.git_repo_homolog_path}'
-  destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: app-homolog
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-YAML
-}
-
 resource "kubectl_manifest" "argocd_application_dev" {
   yaml_body = <<YAML
 apiVersion: argoproj.io/v1alpha1
@@ -217,10 +192,36 @@ YAML
 # Exposição Pública do Frontend via AWS Load Balancer
 # ------------------------------------------------------------------------------
 
-resource "kubernetes_service" "frontend_lb" {
+resource "kubernetes_service" "frontend_lb_prod" {
   metadata {
     name      = "frontend-external"
     namespace = "default"
+    annotations = {
+      "service.beta.kubernetes.io/aws-load-balancer-type" = "nlb" # Cria um Network Load Balancer (mais rápido)
+    }
+  }
+
+  spec {
+    type = "LoadBalancer"
+
+    selector = {
+      app = "prod"
+    }
+
+    port {
+      name        = "http"
+      port        = 80
+      target_port = 8080
+    }
+  }
+
+  depends_on = [helm_release.argocd]
+}
+
+resource "kubernetes_service" "frontend_lb_dev" {
+  metadata {
+    name      = "frontend-external"
+    namespace = "dev"
     annotations = {
       "service.beta.kubernetes.io/aws-load-balancer-type" = "nlb" # Cria um Network Load Balancer (mais rápido)
     }

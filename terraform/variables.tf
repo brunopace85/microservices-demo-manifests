@@ -22,12 +22,6 @@ variable "git_repo_prod_path" {
   description = "Caminho (path) dentro do repositório onde os manifests estão salvos."
 }
 
-variable "git_repo_homolog_path" {
-  type        = string
-  default     = "homolog"
-  description = "Caminho (path) dentro do repositório onde os manifests estão salvos."
-}
-
 variable "git_repo_dev_path" {
   type        = string
   default     = "dev"
