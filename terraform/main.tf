@@ -223,7 +223,7 @@ resource "kubernetes_service" "frontend_lb_prod" {
     type = "LoadBalancer"
 
     selector = {
-      app = "app-prod"
+      app = "frontend"
     }
 
     port {
