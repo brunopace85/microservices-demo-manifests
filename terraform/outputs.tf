@@ -19,7 +19,12 @@ output "argocd_port_forward" {
 }
 
 # Output para exibir a URL pública do Load Balancer no terminal após o apply
-output "frontend_url" {
+output "frontend_url_dev" {
   description = "URL pública de acesso à Online Boutique"
-  value       = kubernetes_service.frontend_lb.status[0].load_balancer[0].ingress[0].hostname
+  value       = kubernetes_service.frontend_lb_dev.status[0].load_balancer[0].ingress[0].hostname
+}
+
+output "frontend_url_prod" {
+  description = "URL pública de acesso à Online Boutique"
+  value       = kubernetes_service.frontend_lb_prod.status[0].load_balancer[0].ingress[0].hostname
 }

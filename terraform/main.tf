@@ -66,11 +66,11 @@ module "eks" {
 
   eks_managed_node_groups = {
     default = {
-      min_size     = 2
+      min_size     = 3
       max_size     = 4
-      desired_size = 2
+      desired_size = 3
 
-      instance_types = ["t3.medium"]
+      instance_types = ["t3.large"]
       capacity_type  = "ON_DEMAND"
     }
   }
@@ -194,7 +194,7 @@ YAML
 
 resource "kubernetes_service" "frontend_lb_prod" {
   metadata {
-    name      = "frontend-external"
+    name      = "frontend-external-prod"
     namespace = "default"
     annotations = {
       "service.beta.kubernetes.io/aws-load-balancer-type" = "nlb" # Cria um Network Load Balancer (mais rápido)
@@ -205,7 +205,7 @@ resource "kubernetes_service" "frontend_lb_prod" {
     type = "LoadBalancer"
 
     selector = {
-      app = "prod"
+      app = "app-prod"
     }
 
     port {
@@ -220,8 +220,8 @@ resource "kubernetes_service" "frontend_lb_prod" {
 
 resource "kubernetes_service" "frontend_lb_dev" {
   metadata {
-    name      = "frontend-external"
-    namespace = "dev"
+    name      = "frontend-external-dev"
+    namespace = "app-dev"
     annotations = {
       "service.beta.kubernetes.io/aws-load-balancer-type" = "nlb" # Cria um Network Load Balancer (mais rápido)
     }
