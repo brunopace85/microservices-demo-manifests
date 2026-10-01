@@ -16,9 +16,21 @@ variable "git_repo_url" {
   description = "URL do seu repositório GitHub contendo os manifests separadamente por serviço."
 }
 
-variable "git_repo_path" {
+variable "git_repo_prod_path" {
   type        = string
-  default     = "."
+  default     = "prod"
+  description = "Caminho (path) dentro do repositório onde os manifests estão salvos."
+}
+
+variable "git_repo_homolog_path" {
+  type        = string
+  default     = "homolog"
+  description = "Caminho (path) dentro do repositório onde os manifests estão salvos."
+}
+
+variable "git_repo_dev_path" {
+  type        = string
+  default     = "dev"
   description = "Caminho (path) dentro do repositório onde os manifests estão salvos."
 }
 

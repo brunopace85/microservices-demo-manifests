@@ -135,22 +135,72 @@ resource "helm_release" "argocd" {
   depends_on = [module.eks]
 }
 
-resource "kubectl_manifest" "argocd_application" {
+resource "kubectl_manifest" "argocd_application_prod" {
   yaml_body = <<YAML
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: my-web-app
+  name: app-prod
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: '${var.git_repo_url}'
     targetRevision: '${var.git_repo_revision}'
-    path: '${var.git_repo_path}'
+    path: '${var.git_repo_prod_path}'
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: default
+    namespace: app-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+YAML
+}
+
+resource "kubectl_manifest" "argocd_application_homolog" {
+  yaml_body = <<YAML
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-homolog
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: '${var.git_repo_url}'
+    targetRevision: '${var.git_repo_revision}'
+    path: '${var.git_repo_homolog_path}'
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: app-homolog
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+YAML
+}
+
+resource "kubectl_manifest" "argocd_application_dev" {
+  yaml_body = <<YAML
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: '${var.git_repo_url}'
+    targetRevision: '${var.git_repo_revision}'
+    path: '${var.git_repo_dev_path}'
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: app-dev
   syncPolicy:
     automated:
       prune: true
