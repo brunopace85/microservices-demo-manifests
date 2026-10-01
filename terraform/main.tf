@@ -187,6 +187,24 @@ YAML
   depends_on = [helm_release.argocd]
 }
 
+# Criando Namespaces para os LoadBalancers conseguirem subir
+
+resource "kubernetes_namespace" "app_prod" {
+  metadata {
+    name = "app-prod"
+  }
+
+  depends_on = [helm_release.argocd]
+}
+
+resource "kubernetes_namespace" "app_dev" {
+  metadata {
+    name = "app-dev"
+  }
+
+  depends_on = [helm_release.argocd]
+}
+
 
 # ------------------------------------------------------------------------------
 # Exposição Pública do Frontend via AWS Load Balancer
@@ -195,7 +213,7 @@ YAML
 resource "kubernetes_service" "frontend_lb_prod" {
   metadata {
     name      = "frontend-external-prod"
-    namespace = "default"
+    namespace = "app-prod"
     annotations = {
       "service.beta.kubernetes.io/aws-load-balancer-type" = "nlb" # Cria um Network Load Balancer (mais rápido)
     }
@@ -215,7 +233,10 @@ resource "kubernetes_service" "frontend_lb_prod" {
     }
   }
 
-  depends_on = [helm_release.argocd]
+  depends_on = [
+    helm_release.argocd,
+    kubernetes_namespace.app_prod
+    ]
 }
 
 resource "kubernetes_service" "frontend_lb_dev" {
@@ -241,5 +262,8 @@ resource "kubernetes_service" "frontend_lb_dev" {
     }
   }
 
-  depends_on = [helm_release.argocd]
+  depends_on = [
+    helm_release.argocd,
+    kubernetes_namespace.app_dev
+    ]
 }
