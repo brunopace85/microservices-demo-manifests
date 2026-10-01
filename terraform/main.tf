@@ -154,6 +154,33 @@ resource "helm_release" "argocd" {
   depends_on = [module.eks]
 }
 
+resource "kubectl_manifest" "argocd_application" {
+  yaml_body = <<YAML
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-web-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: '${var.git_repo_url}'
+    targetRevision: '${var.git_repo_revision}'
+    path: '${var.git_repo_path}'
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+YAML
+
+  depends_on = [helm_release.argocd]
+}
+
 
 # ------------------------------------------------------------------------------
 # Exposição Pública do Frontend via AWS Load Balancer
