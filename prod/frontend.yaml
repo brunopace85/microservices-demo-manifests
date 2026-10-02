@@ -38,7 +38,7 @@ spec:
           value: shoppingassistantservice:80
         - name: ENABLE_PROFILER
           value: "0"
-        image: 'brunopace85/online-boutique-frontend: v0.1'
+        image: 'brunopace85/online-boutique-frontend: "365d6f96b64315ec7b157c7891a7c9cb415e6637"
         livenessProbe:
           httpGet:
             httpHeaders:
