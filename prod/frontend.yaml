@@ -31,7 +31,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
-          image: "7a9370eab3418400360a9a455b2afe94bff55463"
+          image: "71d598dbc5dca42a2db3bd1c0711612ec79e302c"
           ports:
           - containerPort: 8080
           readinessProbe:
