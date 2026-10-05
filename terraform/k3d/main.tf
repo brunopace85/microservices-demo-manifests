@@ -26,19 +26,22 @@ resource "k3d_cluster" "example_cluster" {
 apiVersion: k3d.io/v1alpha4
 kind: Simple
 
-# Expose ports 80 via 8080 and 443 via 8443.
-ports:
-  - port: 3080:80
-    nodeFilters:
-      - loadbalancer
-  - port: 3443:443
-    nodeFilters:
-      - loadbalancer
+servers: 1
+agents: 2
 
-registries:
-  create:
-    name: dev
-    hostPort: "5000"
+# # Expose ports 80 via 8080 and 443 via 8443.
+# ports:
+#   - port: 3080:80
+#     nodeFilters:
+#       - loadbalancer
+#   - port: 3443:443
+#     nodeFilters:
+#       - loadbalancer
+
+# registries:
+#   create:
+#     name: dev
+#     hostPort: "5000"
 EOF
 }
 
@@ -48,18 +51,6 @@ provider "kubernetes" {
   client_key             = base64decode(resource.k3d_cluster.example_cluster.client_key)
   cluster_ca_certificate = base64decode(resource.k3d_cluster.example_cluster.cluster_ca_certificate)
 }
-
-# resource "kubernetes_secret" "postgres_credentials" {
-#   metadata {
-#     name = "postgres-credentials"
-#   }
-
-#   data = {
-#     "postgres-password"    = "development"
-#     "password"             = "development"
-#     "replication-password" = "development"
-#   }
-# }
 
 provider "helm" {
   kubernetes {
@@ -144,12 +135,52 @@ YAML
   depends_on = [helm_release.argocd]
 }
 
-# resource "helm_release" "database" {
-#   name       = "postgres"
-#   repository = "https://charts.bitnami.com/bitnami"
-#   chart      = "postgresql"
-#   set {
-#     name  = "auth.existingSecret"
-#     value = "postgres-credentials"
-#   }
+
+resource "helm_release" "kube_prometheus_stack" {
+  name             = "kube-prometheus-stack"
+  repository       = "https://prometheus-community.github.io/helm-charts"
+  chart            = "kube-prometheus-stack"
+  namespace        = "monitoring"
+  create_namespace = true
+  version          = "56.6.0" # Ajuste para a versão desejada do chart
+
+  # Valores para ajustar os recursos no cluster k3d
+  values = [
+    <<EOF
+prometheus:
+  prometheusSpec:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+grafana:
+  adminPassword: "admin" # Troque por uma variável/senha segura
+EOF
+  ]
+
+  depends_on = [k3d_cluster.example_cluster]
+}
+
+# resource "kubectl_manifest" "grafana_ingress" {
+#   yaml_body = <<YAML
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: grafana-ingress
+#   namespace: monitoring
+# spec:
+#   ingressClassName: traefik
+#   rules:
+#   - http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: kube-prometheus-stack-grafana
+#             port:
+#               number: 80
+# YAML
+
+#   depends_on = [helm_release.kube_prometheus_stack]
 # }
