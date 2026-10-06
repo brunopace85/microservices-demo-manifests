@@ -31,7 +31,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
-          image: "brunopace85/online-boutique-frontend:d9ddd41b165feaad41066339f0e61925835e0eab"
+          image: "brunopace85/online-boutique-frontend:b173546ae715b3397cfb1a2fc74d54374a34699a"
           ports:
           - containerPort: 8080
           readinessProbe:
