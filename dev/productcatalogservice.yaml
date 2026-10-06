@@ -29,7 +29,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: brunopace85/productcatalog:v0.1
+        image: "brunopace85/online-boutique-productcatalogservice:aac49523880014b34f1655c9596b877accea4bee"
         ports:
         - containerPort: 3550
         env:
