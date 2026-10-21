@@ -206,6 +206,32 @@ resource "kubernetes_namespace" "app_dev" {
 }
 
 
+resource "helm_release" "kube_prometheus_stack" {
+  name             = "kube-prometheus-stack"
+  repository       = "https://prometheus-community.github.io/helm-charts"
+  chart            = "kube-prometheus-stack"
+  namespace        = "monitoring"
+  create_namespace = true
+  version          = "56.6.0" # Ajuste para a versão desejada do chart
+
+  # Valores para ajustar os recursos no cluster k3d
+  values = [
+    <<EOF
+prometheus:
+  prometheusSpec:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+grafana:
+  adminPassword: "admin" # Troque por uma variável/senha segura
+EOF
+  ]
+
+  depends_on = [module.eks]
+}
+
+
 # ------------------------------------------------------------------------------
 # Exposição Pública do Frontend via AWS Load Balancer
 # ------------------------------------------------------------------------------
